@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_flutter_app/features/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 import 'package:my_flutter_app/features/user_auth/presentation/widgets/form_container_widget.dart';
-import 'package:my_flutter_app/features/user_auth/presentation/pages/home_page.dart';
+
 import 'package:my_flutter_app/features/user_auth/presentation/pages/sign_up.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,16 +13,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final FirebaseAuthService _auth = FirebaseAuthService();
 
-   final FirebaseAuthService _auth = FirebaseAuthService();
-
-   
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   void dispose() {
-    
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -64,8 +61,6 @@ class _LoginPageState extends State<LoginPage> {
                   isPasswordField: true,
                 ),
                 SizedBox(height: 20),
-
-
                 GestureDetector(
                   onTap: _signUp,
                   child: Container(
@@ -76,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius:
                           BorderRadius.circular(10), // Removed 'const'
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         "Login",
                         style: TextStyle(color: Colors.white),
@@ -84,33 +79,31 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-
-
-               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Don't have an account?"),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignupPage()),
-                            (route) => false,
-                      );
-                    },
-                    child: Text(
-                      "Sign Up",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account?"),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => SignupPage()),
+                          (route) => false,
+                        );
+                      },
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -119,22 +112,21 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-   void _signUp() async {
- 
-  String email = _emailController.text;
-  String password = _passwordController.text;
+  void _signUp() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
 
-  try {
-    User? user = await _auth.signInWithEmailAndPassword(email, password);
+    try {
+      User? user = await _auth.signInWithEmailAndPassword(email, password);
 
-    if (user != null) {
-      print("User successfully signin");
-      Navigator.pushNamed(context, "/home");
-    } else {
-      print("Some error occurred during signup: User is null");
+      if (user != null) {
+        print("User successfully signin");
+        Navigator.pushNamed(context, "/home", arguments: email);
+      } else {
+        print("Some error occurred during signup: User is null");
+      }
+    } catch (e) {
+      print("Error during signup: $e"); // Print the specific error message
     }
-  } catch (e) {
-    print("Error during signup: $e"); // Print the specific error message
   }
-}
 }
