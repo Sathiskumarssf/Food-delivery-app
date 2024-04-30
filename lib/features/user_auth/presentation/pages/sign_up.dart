@@ -1,9 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_flutter_app/features/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
- 
+import 'package:my_flutter_app/features/user_auth/firebase_auth_implementation/firebase_auth_services.dart'; 
 import 'package:my_flutter_app/features/user_auth/presentation/pages/login_page.dart';
-// import 'package:my_flutter_app/features/user_auth/presentation/pages/login_page.dart';
 import 'package:my_flutter_app/features/user_auth/presentation/widgets/form_container_widget.dart';
 
 class SignupPage extends StatefulWidget {
@@ -47,33 +45,33 @@ class _SignupPageState extends State<SignupPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
+                const Text(
                   "Signup", // Changed text to "Signup"
                   style: TextStyle(
                     fontSize: 27,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 30),
+                const  SizedBox(height: 30),
                 FormContainerWidget(
                   controller: _usernameController,
                   hintText: "username",
                   isPasswordField: false,
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 FormContainerWidget(
                   controller: _emailController,
                   hintText: "Email",
                   isPasswordField: false,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 FormContainerWidget(
                   controller: _passwordController,
                   hintText: "password",
                   isPasswordField: true,
                 ),
                 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 GestureDetector(
                   onTap: _signUp,
                   child: Container(
@@ -84,7 +82,7 @@ class _SignupPageState extends State<SignupPage> {
                       borderRadius:
                           BorderRadius.circular(10), // Removed 'const'
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         "Login",
                         style: TextStyle(color: Colors.white),
@@ -95,8 +93,8 @@ class _SignupPageState extends State<SignupPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Already have an account?"),
-                    SizedBox(width: 5),
+                    const Text("Already have an account?"),
+                   const SizedBox(width: 5),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushAndRemoveUntil(
@@ -105,7 +103,7 @@ class _SignupPageState extends State<SignupPage> {
                           (route) => false,
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         "Sign In",
                         style: TextStyle(
                           color: Colors.blue,
@@ -133,7 +131,7 @@ class _SignupPageState extends State<SignupPage> {
 
     if (user != null) {
       print("User successfully created");
-      Navigator.pushNamed(context, "/home");
+      Navigator.pushNamed(context, "/login");
     } else {
       print("Some error occurred during signup: User is null");
     }

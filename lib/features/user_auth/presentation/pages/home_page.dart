@@ -6,56 +6,62 @@ import 'package:my_flutter_app/features/user_auth/presentation/pages/admin.dart'
 import 'package:my_flutter_app/features/user_auth/presentation/pages/cart.dart';
 import 'package:my_flutter_app/features/user_auth/presentation/widgets/form_container_widget.dart';
 
-// import 'package:my_flutter_app/features/user_auth/presentation/pages/login_page.dart';
-
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
-  final TextEditingController _SearchController = TextEditingController();
-  QuerySnapshot? snapshots;
 
-  Future<void> searchItems() async {
-    if (_SearchController.text.trim() != '') {
-      try {
-        // Assign result to the class-level variable when condition is true
-        snapshots = await FirebaseFirestore.instance
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late TextEditingController _searchController;
+  late Stream<QuerySnapshot> _stream;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    _stream =
+        FirebaseFirestore.instance.collection('product_details').snapshots();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> searchItems(String searchText) async {
+    if (searchText.trim().isNotEmpty) {
+      setState(() {
+        _stream = FirebaseFirestore.instance
             .collection('product_details')
+            .where('product_name', isGreaterThanOrEqualTo: searchText.trim())
             .where('product_name',
-                isGreaterThanOrEqualTo: _SearchController.text.trim())
-            .where('product_name',
-                isLessThanOrEqualTo: _SearchController.text.trim() + '\uf8ff')
-            .get();
-
-        snapshots!.docs.forEach((doc) {
-          // Access the data in each document
-          print(doc['product_name']);
-          print(doc['product_prize']);
-        });
-      } catch (error) {
-        print("Error searching items: $error");
-        // Handle any errors here
-      }
+                isLessThanOrEqualTo: searchText.trim() + '\uf8ff')
+            .snapshots();
+      });
     } else {
-      // Use a different variable when condition is false
-      var snapshots =
-          await FirebaseFirestore.instance.collection('product_details').get();
-      snapshots.docs.forEach((doc) {
-        print(doc['product_name']);
-        print(doc['product_prize']);
+      setState(() {
+        _stream = FirebaseFirestore.instance
+            .collection('product_details')
+            .snapshots();
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // final args = ModalRoute.of(context)!.settings.arguments as String?;
-    // final email =
-    //     args ?? "No Email Provided"; // Handle the case where arguments are null
-    var email = "asarakmal@gmail.com";
+     final args = ModalRoute.of(context)!.settings.arguments as String?;
+    final email =
+        args ?? "No Email Provided";
+    // var email = "asarakmal@gmail.com";
     return Scaffold(
-      backgroundColor: Colors.amber[50],
+      backgroundColor: Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
-        title: const Text("Home"),
-        backgroundColor: Colors.blue,
+        title: const Text("Welcome to Pizza Bank"),
+        backgroundColor: const Color.fromARGB(255, 211, 211, 211),
+        centerTitle: true,
       ),
       body: Center(
         child: Padding(
@@ -63,63 +69,90 @@ class HomePage extends StatelessWidget {
           child: Center(
             child: Column(
               children: [
-                const Text("home derectory"),
-                const SizedBox(
-                  height: 30,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "All type of pizza avalible!!",
+                      style: TextStyle(
+                          color: Color.fromARGB(255, 88, 209, 92),
+                          fontSize: 20.0),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              backgroundColor: Colors.green[100],
+                              title: const Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(Icons.email), // Icon widget
+                                          SizedBox(width: 8), // Optional: Add spacing between icon and text
+                                          Text('pizzabank12@gmail.com ' ,style: TextStyle(fontSize: 20.0),),
+                                          SizedBox(width: 8),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.phone), // Icon widget
+                                          SizedBox(width: 8), // Optional: Add spacing between icon and text
+                                          Text('+94 75969634',style: TextStyle(fontSize: 20.0))
+                                        ],
+                                      ),
+                                                                            
+                                    ],
+                                  ),
+                                   
+                              content:const Text("Any time you can contect don't hesitate to contact us"),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text('Close'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: const Icon(Icons.contact_emergency),
+                    ),
+                  ],
                 ),
-
-                // SizedBox(
-                //     height: 50,
-                //     width: 200,
-                //     child: GestureDetector(
-                //       onTap: () {
-                //         FirebaseAuth.instance.signOut();
-                //         Navigator.pushAndRemoveUntil(
-                //           context,
-                //           MaterialPageRoute(
-                //               builder: (context) => const Admin()),
-                //           (route) => false,
-                //         );
-                //       },
-                //       child: const Text("Go to login"),
-                //     )
-                //     ),
-
-                //  Container(
-
-                //    height: 50,
-                //     width: 200,
-                //      child:
-                //       ElevatedButton(onPressed: (){},
-                //       child: Icon(Icons.search)
-
-                //       ),
-                //    ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment
-                          .center, // Align items to the center vertically
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
                           child: FormContainerWidget(
-                            controller: _SearchController,
-                            hintText: "Email",
+                            controller: _searchController,
+                            hintText: "search",
+                            onFieldSubmitted: (email) {
+                              searchItems(_searchController.text);
+                            },
+                            onchanged: (email) {
+                              searchItems(_searchController.text);
+                            },
                             isPasswordField: false,
                           ),
                         ),
-                        SizedBox(
-                            width:
-                                16.0), // Add horizontal spacing between the button and the text field
+                        const SizedBox(width: 16.0),
                         ElevatedButton(
-                          onPressed: searchItems,
-                          child: Icon(Icons.search),
+                          onPressed: () {
+                            searchItems(_searchController.text);
+                          },
+                          child: const Icon(Icons.search),
                           style: ButtonStyle(
-                            fixedSize: MaterialStateProperty.all(
-                                Size(40.0, 45.0)), // Rounded to integers
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.orange),
+                            fixedSize:
+                                MaterialStateProperty.all(Size(30.0, 45.0)),
+                            backgroundColor: MaterialStateProperty.all(
+                                const Color.fromARGB(255, 214, 213, 211)),
                             alignment: Alignment.center,
                           ),
                         ),
@@ -127,28 +160,25 @@ class HomePage extends StatelessWidget {
                     ),
                   ],
                 ),
-
+                const SizedBox(
+                  height: 10,
+                ),
                 Expanded(
                   child: Container(
                     child: StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('product_details')
-                          .snapshots(),
-                      builder: (context, snapshots) {
-                        if (!snapshots.hasData) {
+                      stream: _stream,
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
                           return Center(child: CircularProgressIndicator());
                         }
-                        print('Snapshot data: $snapshots');
+                        print('Snapshot data: $snapshot');
                         final List<DocumentSnapshot> documents =
-                            snapshots.data!.docs;
+                            snapshot.data!.docs;
                         return ListView.builder(
                           scrollDirection: Axis.vertical,
                           itemCount: documents.length,
                           itemBuilder: (context, index) {
-                            // Calculate the index for accessing the data
                             int dataIndex = index * 2;
-
-                            // Check if there are at least two products left to display in a pair
                             if (dataIndex + 1 < documents.length) {
                               final Map<String, dynamic> data1 =
                                   documents[dataIndex].data()
@@ -171,24 +201,23 @@ class HomePage extends StatelessWidget {
                                   Expanded(
                                     child: Container(
                                       color: Color.fromARGB(255, 242, 239, 239),
-                                      margin: EdgeInsets.symmetric(
+                                      margin: const EdgeInsets.symmetric(
                                           vertical: 8.0, horizontal: 4.0),
                                       child: Column(
                                         children: [
                                           ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                                10), // Set the border radius as needed
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                             child: Image.network(
                                               productImageUrl1,
                                               width: 600,
                                               height: 200,
-                                              fit: BoxFit
-                                                  .cover, // Optional: Specify how the image should be fitted within the container
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
                                           Text(productName1),
                                           Text(
-                                            ' \$ ${productPrize1.toString()} ',
+                                            '\$ ${productPrize1.toString()} ',
                                             style: TextStyle(fontSize: 15.0),
                                           ),
                                           ElevatedButton(
@@ -201,15 +230,24 @@ class HomePage extends StatelessWidget {
                                                 'product_name': productName1,
                                                 'product_prize': productPrize1,
                                                 'product_url': productImageUrl1,
-                                                'useremail': email
+                                                'useremail': email,
                                               });
+
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      '$productName1 is add into the card'),
+                                                ),
+                                              );
                                             },
                                             style: ButtonStyle(
                                               backgroundColor:
                                                   MaterialStateProperty.all<
-                                                          Color>(
-                                                      const Color.fromARGB(
-                                                          255, 241, 172, 23)),
+                                                      Color>(
+                                                const Color.fromARGB(
+                                                    255, 241, 172, 23),
+                                              ),
                                             ),
                                             child: const Text(
                                               'Add to Cart',
@@ -227,19 +265,18 @@ class HomePage extends StatelessWidget {
                                     child: Container(
                                       color: const Color.fromARGB(
                                           255, 242, 239, 239),
-                                      margin: EdgeInsets.symmetric(
+                                      margin: const EdgeInsets.symmetric(
                                           vertical: 8.0, horizontal: 4.0),
                                       child: Column(
                                         children: [
                                           ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                                10), // Set the border radius as needed
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                             child: Image.network(
                                               productImageUrl2,
                                               width: 300,
                                               height: 200,
-                                              fit: BoxFit
-                                                  .cover, // Optional: Specify how the image should be fitted within the container
+                                              fit: BoxFit.cover,
                                             ),
                                           ),
                                           Text(productName2),
@@ -257,15 +294,24 @@ class HomePage extends StatelessWidget {
                                                 'product_name': productName2,
                                                 'product_prize': productPrize2,
                                                 'product_url': productImageUrl2,
-                                                'useremail': email
+                                                'useremail': email,
                                               });
+
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      '$productName2 is add into the card'),
+                                                ),
+                                              );
                                             },
                                             style: ButtonStyle(
                                               backgroundColor:
                                                   MaterialStateProperty.all<
-                                                          Color>(
-                                                      const Color.fromARGB(
-                                                          255, 241, 172, 23)),
+                                                      Color>(
+                                                const Color.fromARGB(
+                                                    255, 241, 172, 23),
+                                              ),
                                             ),
                                             child: const Text(
                                               'Add to Cart',
@@ -291,20 +337,21 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  left: 400, // 40 pixels from the left edge
-                  bottom: 160, // Adjust as needed
+                  left: 400,
+                  bottom: 160,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, "/cart", arguments: email);
                     },
-                    child: Text('Go To Cart'),
+                    child: const Text('Go To Cart'),
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all<Color>(
-                          Color.fromARGB(255, 17, 236, 178)),
+                        Color.fromARGB(255, 17, 236, 178),
+                      ),
                     ),
                   ),
                 ),
-                Text(email)
+                Text(email),
               ],
             ),
           ),

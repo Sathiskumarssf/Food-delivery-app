@@ -14,6 +14,7 @@ class FormContainerWidget extends StatefulWidget {
   final FormFieldSetter<String>? onSaved;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onFieldSubmitted;
+  final ValueChanged<String>? onchanged;
   final TextInputType? inputType;
 
   const FormContainerWidget({
@@ -26,6 +27,7 @@ class FormContainerWidget extends StatefulWidget {
     this.onSaved,
     this.validator,
     this.onFieldSubmitted,
+    this.onchanged,
     this.inputType
   });
 
@@ -55,14 +57,15 @@ class _FormContainerWidgetState extends State<FormContainerWidget> {
         key: widget.fieldKey,
         obscureText: widget.isPasswordField == true? _obscureText : false,
         onSaved: widget.onSaved,
+        onChanged: widget.onchanged,
         validator: widget.validator,
         onFieldSubmitted: widget.onFieldSubmitted,
-        decoration: new InputDecoration(
+        decoration: InputDecoration(
           border: InputBorder.none,
           filled: true,
           hintText: widget.hintText,
           hintStyle: TextStyle(color: Colors.black45),
-          suffixIcon: new GestureDetector(
+          suffixIcon: GestureDetector(
             onTap: () {
               setState(() {
                 _obscureText = !_obscureText;
