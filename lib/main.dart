@@ -5,6 +5,8 @@ import 'package:my_flutter_app/features/user_auth/presentation/pages/cart.dart';
 
 import 'package:my_flutter_app/features/user_auth/presentation/pages/login_page.dart';
 import 'package:my_flutter_app/features/user_auth/presentation/pages/home_page.dart';
+import 'package:my_flutter_app/features/user_auth/presentation/pages/checkout.dart';
+import 'package:my_flutter_app/features/user_auth/presentation/pages/admin.dart';
 import 'package:my_flutter_app/features/user/splash_screen/splash_sreen.dart';
 
 void main() async {
@@ -32,16 +34,18 @@ class MyApp extends StatefulWidget {
 class _MainState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return   MaterialApp(
+     
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(), // Assuming you have defined SplashSreen widget
+      home: SplashSreen(), // Assuming you have defined SplashSreen widget
       routes: {
         '/home': (context) => HomePage(),
         '/Login': (context) => LoginPage(),
         '/cart': (context) => Cart(),
+        '/checkout': (context) => Checkout(),
+        '/admin': (context) => Admin(),
         // Add more routes here if needed
       },
-
     );
   }
 }

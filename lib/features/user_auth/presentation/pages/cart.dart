@@ -9,7 +9,7 @@ class Cart extends StatefulWidget {
 }
 
 class _CartState extends State<Cart> {
-  late List<int> counterValues; // List to store counter values for each item
+  late List<int> counterValues ; // List to store counter values for each item
 
   @override
   void initState() {
@@ -18,30 +18,46 @@ class _CartState extends State<Cart> {
   }
 
   void _incrementCounter(int index) {
-        
-      setState(() {
-        counterValues[index]++; // Increment the counter value at the specified index
-      });
-
-  }
-  void _decrementCounter(int index) {
-  if (counterValues[index] > 0) {
     setState(() {
-      counterValues[index]--; // Decrement the counter value at the specified index
+      counterValues[
+          index]++; // Increment the counter value at the specified index
     });
   }
-}
 
+ void _removeProduct(String email,String productName) async {
+    await FirebaseFirestore.instance
+        .collection('Cartproduct')
+        .where('useremail', isEqualTo:  email)
+        .where('product_name', isEqualTo: productName)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.delete();
+      });
+    });
+  }
+ 
+
+  void _decrementCounter(int index) {
+    if (counterValues[index] > 0) {
+      setState(() {
+        counterValues[
+            index]--; // Decrement the counter value at the specified index
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final String email = ModalRoute.of(context)!.settings.arguments as String;
+    int totalamount = 0; // Initialize total amount to 0
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text("Cart"),
         backgroundColor: Colors.blue,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: StreamBuilder(
@@ -49,7 +65,8 @@ class _CartState extends State<Cart> {
               .collection('Cartproduct')
               .where('useremail', isEqualTo: email)
               .snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             }
@@ -67,6 +84,10 @@ class _CartState extends State<Cart> {
                 if (counterValues.length <= index) {
                   counterValues.add(0);
                 }
+
+                totalamount += (data['product_prize'] as int) *
+                    counterValues[index]; // Calculate total amount
+             
                 return Container(
                   margin: EdgeInsets.symmetric(vertical: 10),
                   child: Column(
@@ -99,7 +120,7 @@ class _CartState extends State<Cart> {
                                 ),
                               ),
                               Text(
-                                data['product_prize'].toString(),
+                                ('\$'+data['product_prize'].toString() ),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -109,16 +130,25 @@ class _CartState extends State<Cart> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   ElevatedButton(
-                                    onPressed: () => _incrementCounter(index), // Pass index to _incrementCounter
+                                    onPressed: () => _incrementCounter(
+                                        index), // Pass index to _incrementCounter
                                     child: Text('+'),
                                   ),
-                                  Text('${counterValues[index]}'), // Use counter value from the list
-                                   ElevatedButton(
-                                    onPressed: () => _decrementCounter(index), // Pass index to _incrementCounter
-                                    child:  Text('-'),
+                                  Text( '${counterValues[index]}',
+                                  style: TextStyle(fontSize: 20.0),), // Use counter value from the list
+                                  ElevatedButton(
+                                    onPressed: () => _decrementCounter(
+                                        index), // Pass index to _incrementCounter
+                                    child: Text('-'),
                                   ),
                                 ],
                               ),
+
+                              ElevatedButton(
+                                  onPressed: () => _removeProduct(email, data['product_name']),
+                                  child: Icon(Icons.delete), // Use delete icon as child
+                                )
+
                             ],
                           ),
                         ),
@@ -136,26 +166,30 @@ class _CartState extends State<Cart> {
           Positioned(
             left: 16.0,
             bottom: 16.0,
-             child: ElevatedButton(
+            child: ElevatedButton(
               onPressed: () {
-                // Implement functionality for the right floating button
+                // Implement functionality for the left floating button
                 Navigator.pushNamed(context, "/home", arguments: email);
               },
               child: Text('home'),
             ),
           ),
           Positioned(
-            right: 16.0,
+            right: -5.0,
             bottom: 16.0,
-            
-             child: ElevatedButton(
+            child: ElevatedButton(
               onPressed: () {
-               Navigator.pushNamed(context, "/home", arguments: email);
+                // Implement functionality for the right floating button
+                Navigator.pushNamed(context, "/checkout", arguments: totalamount);
               },
               child: Text('Checkout'),
             ),
           ),
+
+
         ],
+
+        
       ),
     );
   }

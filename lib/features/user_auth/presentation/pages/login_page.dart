@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_flutter_app/features/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 import 'package:my_flutter_app/features/user_auth/presentation/widgets/form_container_widget.dart';
-
 import 'package:my_flutter_app/features/user_auth/presentation/pages/sign_up.dart';
 
 class LoginPage extends StatefulWidget {
